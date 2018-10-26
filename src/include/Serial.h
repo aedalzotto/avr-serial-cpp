@@ -50,11 +50,46 @@ extern "C" void SERIAL_RX_vect(void) __attribute__((signal));
 
 class Serial {
 public:
-    static bool init(uint32_t baud, bool doublepsd = true);
+    /**
+     * @brief Inits the UART and the buffers.
+     * 
+     * @param baud Is the baud rate of the communication.
+     * @param douplespd Is the double speed register configuration. Please check
+     * the datasheet to set this to provide the most accurate configuration for
+     * your baud rate.
+     * 
+     * @returns True if success.
+     */
+    static bool init(uint32_t baud, bool doublespd = true);
 
+    /**
+     * @brief Puts a char to the UART.
+     * 
+     * @details This blocks until the buffer is no longer full to avoid overrun.
+     * 
+     * @param c Is the char to be put.
+     * @param *stream Is the file stream.
+     * 
+     * @return 0
+     */
     static int uputc(char c, FILE *stream);
+
+    /**
+     * @brief Gets a char from the UART.
+     * 
+     * @details This blocks until the buffer is no longer empty.
+     * 
+     * @param *stream Is the file stream.
+     * 
+     * @return The char read.
+     */
     static int ugetc(FILE *stream);
 
+    /**
+     * @brief Gets the number of bytes available in the RX buffer.
+     * 
+     * @return The number of bytes available.
+     */
     static uint16_t available();
 
     friend void SERIAL_UDRE_vect(void);
