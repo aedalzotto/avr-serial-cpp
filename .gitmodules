@@ -1,0 +1,3 @@
+[submodule "lib/ringbuffer-cpp"]
+	path = lib/ringbuffer-cpp
+	url = git@github.com:aedalzotto/ringbuffer-cpp.git
