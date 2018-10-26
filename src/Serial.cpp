@@ -1,7 +1,30 @@
 /**
- * @file serial.c
+ * @file Serial.cpp
  * 
- * From https://github.com/tuupola/avr_demo/tree/master/blog/simple_usart
+ * @author
+ * Angelo Elias Dalzotto (150633@upf.br)
+ * GEPID - Grupo de Pesquisa em Cultura Digital (http://gepid.upf.br/)
+ * Universidade de Passo Fundo (http://www.upf.br/)
+ * 
+ * @copyright
+ * Copyright (C) 2018 by Angelo Elias Dalzotto
+ * 
+ * @brief This is an interrup-driven Serial library. The configurations are
+ * written in C++ but it supports the stdio functions.
+ * 
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This Library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * along with this library. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <Serial.h>
