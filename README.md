@@ -1,6 +1,7 @@
 # avr-serial-cpp
 
 Interrupt-driven Serial library using ringbuffer for AVR microcontrollers.
+Supports stdio functions.
 
 ## Built with
 
