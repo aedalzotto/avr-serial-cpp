@@ -61,48 +61,79 @@ Ringbuffer::Error Ringbuffer::get_error()
 
 bool Ringbuffer::write(uint8_t byte)
 {
+    bool ret = true;
     if(full){
-        error = Error::BUFFER_FULL;
-        return false;
+        error = Error::BUFFER_OVERRUN;
+        ret = false;
+
+        head++;
+        head %= size;
     }
 
     buffer[tail++] = byte;
-
     tail %= size;
+
     if(tail == head)
         full = true;
 
     empty = false;
 
-    return true;
+    return ret;
 }
 
 bool Ringbuffer::write(uint8_t *buff_ptr, uint16_t size)
 {
+    uint8_t *buff_src = buff_ptr;
+    bool ret = true;
     if(full){
-        error = Error::BUFFER_FULL;
-        return false;
+        error = Error::BUFFER_OVERRUN;
+        ret = false;
+    }
+
+    if(size > this->size){
+        error = Error::BUFFER_OVERRUN;
+        ret = false;
+
+        buff_src += (size - this->size);
+        size = this->size;
     }
 
     if(tail >= head){
         uint16_t bottom = this->size - tail;
-        if(bottom + head >= size){
-            memcpy(buffer+tail, buff_ptr, bottom);
-            memcpy(buffer, buff_ptr+bottom, size-bottom);
-            tail += size;
-            tail %= this->size;
-        } else {
-            error = Error::BUFFER_FULL;
-            return false;
+
+        if(bottom + head < size){            
+            error = Error::BUFFER_OVERRUN;
+            ret = false;
+
+            head = size - bottom; // Size - available size
         }
+
+        if(size < bottom) bottom = size;
+
+        memcpy(buffer+tail, buff_src, bottom);
+        buff_src += bottom;
+        memcpy(buffer, buff_src, size-bottom);
+        tail += size;
+        tail %= this->size;
+
     } else {
-        if(head - tail >= size){
-            memcpy(buffer+tail, buff_ptr, size);
-            tail += size;
-        } else {
-            error = Error::BUFFER_FULL;
-            return false;
+        uint16_t bottom = this->size - tail;
+
+        if(head - tail < size){            
+            error = Error::BUFFER_OVERRUN;
+            ret = false;
+
+            head = tail + size; // Size - available size
+            head %= this->size;
         }
+
+        if(size < bottom) bottom = size;
+
+        memcpy(buffer+tail, buff_src, bottom);
+        buff_src += bottom;
+        memcpy(buffer, buff_src, size-bottom);
+        tail += size;
+        tail %= this->size;
     }
 
     if(tail == head)
@@ -110,7 +141,7 @@ bool Ringbuffer::write(uint8_t *buff_ptr, uint16_t size)
 
     empty = false;
 
-    return true;    
+    return ret;    
 }
 
 uint8_t Ringbuffer::read()
@@ -135,10 +166,10 @@ bool Ringbuffer::read(uint8_t *buff_ptr, uint16_t size)
 {
     if(empty){
         error = Error::BUFFER_EMPTY;
-        return -1;
+        return false;
     }
 
-    if(tail >= head){
+    if(tail > head){
         if(tail - head >= size){
             memcpy(buff_ptr, buffer+head, size);
             head += size;
@@ -149,6 +180,9 @@ bool Ringbuffer::read(uint8_t *buff_ptr, uint16_t size)
     } else {
         uint16_t bottom = this->size - head;
         if(bottom + tail >= size){
+
+            if(size < bottom) bottom = size;
+
             memcpy(buff_ptr, buffer+head, bottom);
             memcpy(buff_ptr+bottom, buffer, size-bottom);
             head += size;
@@ -175,4 +209,9 @@ uint16_t Ringbuffer::available()
 bool Ringbuffer::is_empty()
 {
     return empty;
+}
+
+bool Ringbuffer::is_full()
+{
+    return full;
 }

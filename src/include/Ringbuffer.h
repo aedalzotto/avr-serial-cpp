@@ -44,7 +44,7 @@ public:
     enum class Error {
         NO_ERROR,
         OUT_OF_MEMORY,
-        BUFFER_FULL,
+        BUFFER_OVERRUN,
         BUFFER_EMPTY
     };
 
@@ -118,6 +118,13 @@ public:
      * @returns True if empty.
      */
     bool is_empty();
+
+    /**
+     * @brief Gets if the buffer is full.
+     * 
+     * @returns True if full;
+     */
+    bool is_full();
 
 private:
     uint8_t *buffer;

@@ -7,11 +7,11 @@
 #include <Serial.h>
 
 #ifndef SERIAL_RX_BUF_SIZE
-#define SERIAL_RX_BUF_SIZE 128
+#define SERIAL_RX_BUF_SIZE 64
 #endif
 
 #ifndef SERIAL_TX_BUF_SIZE
-#define SERIAL_TX_BUF_SIZE 128
+#define SERIAL_TX_BUF_SIZE 64
 #endif
 
 Ringbuffer Serial::txbuf(SERIAL_TX_BUF_SIZE);
@@ -38,6 +38,7 @@ int Serial::uputc(char c, FILE *stream) {
     if(c == '\n')
         uputc('\r', stream);
     
+    while(txbuf.is_full());
     txbuf.write((uint8_t)c);
     
     UCSR0B |= (1 << UDRIE0);
