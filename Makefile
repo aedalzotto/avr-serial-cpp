@@ -17,14 +17,20 @@ BUILDDIR = build
 BINDIR   = bin
 INCDIR   = $(SRCDIR)/include
 
+LIBDIR = lib
+
+RINGBUFFER_LIB = $(LIBDIR)/ringbuffer-cpp
+
 TARGET = $(BINDIR)/$(BIN)
 
 CPP_SOURCES  = $(wildcard $(SRCDIR)/*.cpp)
+CPP_SOURCES += $(RINGBUFFER_LIB)/Ringbuffer.cpp
+
 C_SOURCES = $(wildcard $(SRCDIR)/*.c)
 CPP_OBJECTS  = $(addprefix $(BUILDDIR)/,$(notdir $(CPP_SOURCES:.cpp=.o)))
 C_OBJECTS = $(addprefix $(BUILDDIR)/,$(notdir $(C_SOURCES:.c=.o)))
 CFLAGS   = -g -Wall -mmcu=$(MCU) -Os
-INCLUDES = -I$(INCDIR) -I$(LCDDIR)
+INCLUDES = -I./$(INCDIR) -I$(RINGBUFFER_LIB)/include
 LDFLAGS  = -g -mmcu=$(MCU) 
 #-Wl,-u,vfprintf -lprintf_flt -lm
 DEFINES  = -DF_CPU=$(F_CPU) -DBAUD=$(BAUD) -DDRV_MMC=0
@@ -49,6 +55,11 @@ $(TARGET).elf: $(CPP_OBJECTS) $(C_OBJECTS)
 	@$(CC) $^ -o $@ $(LDFLAGS)
 
 $(BUILDDIR)/%.o: $(SRCDIR)/%.c
+	@echo "Compiling $<"
+	@$(MK) -p $(BUILDDIR)
+	@$(CC) -c $< -o $@ $(INCLUDES) $(CFLAGS) $(DEFINES)
+
+$(BUILDDIR)/%.o: $(RINGBUFFER_LIB)/%.cpp
 	@echo "Compiling $<"
 	@$(MK) -p $(BUILDDIR)
 	@$(CC) -c $< -o $@ $(INCLUDES) $(CFLAGS) $(DEFINES)
